@@ -1,0 +1,19 @@
+{
+  "name": "garoon-next-meeting",
+  "version": "1.0.0",
+  "description": "\"garoonの次の予定を表示するブラウザ拡張\"",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/niwatonmaster/garoon-next-meeting.git"
+  },
+  "author": "niwatonmaster",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/niwatonmaster/garoon-next-meeting/issues"
+  },
+  "homepage": "https://github.com/niwatonmaster/garoon-next-meeting#readme"
+}
