@@ -29,6 +29,7 @@
     "@parcel/config-webextension": "^2.0.1",
     "@types/luxon": "^2.0.7",
     "create-web-ext": "^1.0.0",
+    "fetch": "^1.1.0",
     "luxon": "^2.1.1",
     "parcel": "^2.0.1",
     "prettier": "^2.4.1",

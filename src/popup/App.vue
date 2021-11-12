@@ -7,8 +7,13 @@
           <div class="card-overviewtext">時間: {{ event.startStr }}-{{ event.endStr }}</div>
           <div class="link">
             <a class="link-content" :href="event.eventLink" target="_blank" rel="noopener noreferrer">Garoon </a>
+            <a v-if="event.facilityNumber === 0" class="link-content">施設なし</a>
             <a v-if="event.facilityNumber > 0" class="link-content" :href="event.facilityLink" target="_blank"
                rel="noopener noreferrer">{{ event.facilityName }}</a> <div v-if="event.facilityNumber >= 2">他{{event.facilityNumber - 1}}件</div>
+            <a v-if="event.zoomLinkFromNote !== undefined" class="link-content" :href="event.zoomLinkFromNote" target="_blank"
+               rel="noopener noreferrer">本文に含まれるZoomURL</a>
+            <a v-if="event.zoomLinkFromDatastore !== undefined" class="link-content" :href="event.zoomLinkFromDatastore" target="_blank"
+               rel="noopener noreferrer">発行済みZoomURL</a>
           </div>
         </div>
       </div>
@@ -30,17 +35,12 @@ export default {
   async created() {
     // Garoonからスケジュールを取得する
     const eventsFromGaroon = await getSchedule();
-    await console.log("events", eventsFromGaroon);
-    // スケジュールをvueで表示する形に変換する
-    const eventsForVue = await convertEventForVue(eventsFromGaroon);
-    await console.log("eventsForVue", eventsForVue);
-
-    // vueで描画する
-    this.events = eventsForVue;
+    // スケジュールをvueで表示する形に変換してeventsに反映する
+    this.events  = await convertEventForVue(eventsFromGaroon);
   }
 };
-
 </script>
+
 <style>
 main {
   min-width: 320px;

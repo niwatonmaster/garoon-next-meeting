@@ -12,6 +12,7 @@ export interface EventInfo {
     isStartOnly: boolean;
     facilities: Facility[];
     recent: boolean;
+    notes: string;
 }
 
 
@@ -43,19 +44,6 @@ export enum EventsType {
 export interface DateRange {
     startDate: Date;
     endDate: Date;
-}
-
-export interface EventInfo {
-    id: string;
-    subject: string;
-    startTime: Date;
-    endTime: Date;
-    eventType: string;
-    eventMenu: string;
-    visibilityType: string;
-    attendees: Participant[];
-    isAllDay: boolean;
-    isStartOnly: boolean;
 }
 
 export interface Participant {

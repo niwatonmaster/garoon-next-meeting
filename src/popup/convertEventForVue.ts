@@ -1,16 +1,17 @@
-import {EventInfo, Facility, FacilityInfo} from "./event";
+import {EventInfo, Facility, FacilityInfo} from "./types";
 import {KintoneRestAPIClient} from "@kintone/rest-api-client";
+import {GaroonRestAPIClient} from "@miyajan/garoon-rest";
 const {DateTime} = require("luxon");
 
 export const convertEventForVue = async (events: EventInfo[]): Promise<any> => {
-    console.log(events);
     const sortedEvents = sort(events);
     let eventsForVue: Object[] = [];
 
     for (const event of sortedEvents) {
-        console.log(event);
         const facilityInfo = await getFacilityInfo(event);
-        if ( (event.eventType ===  "REGULAR" || event.eventType ===  "REPEATING") && !event.isAllDay) {
+        const zoomLinkFromNotes = getZoomLinkFromNotes(event);
+        const zoomLinkFromDatastore = await getZoomLink(event);
+        if ((event.eventType === "REGULAR" || event.eventType === "REPEATING") && !event.isAllDay) {
             eventsForVue.push(
                 {
                     id: event.id,
@@ -23,12 +24,13 @@ export const convertEventForVue = async (events: EventInfo[]): Promise<any> => {
                     facilityLink: facilityInfo.facilityLink,
                     facilityName: facilityInfo.facilityName,
                     eventLink: "https://bozuman.cybozu.com/g/schedule/view.csp?event=" + event.id,
-                    recent: checkRecent(event)
+                    recent: checkRecent(event),
+                    zoomLinkFromNote: zoomLinkFromNotes,
+                    zoomLinkFromDatastore: zoomLinkFromDatastore
                 }
             );
         }
     }
-    console.log(eventsForVue);
     return filterAndSortEvent(eventsForVue);
 }
 
@@ -88,11 +90,39 @@ function compare(a:EventInfo, b:EventInfo) {
     return 0;
 }
 
-function checkRecent(event: EventInfo):boolean{
+function checkRecent(event: EventInfo): boolean {
     const now = DateTime.local();
-    if(event.start === undefined || event.end === undefined){
+    if (event.start === undefined || event.end === undefined) {
         return false;
     }
     return DateTime.fromISO(event.start.dateTime) <= now &&
         DateTime.fromISO(event.end.dateTime) >= now;
+}
+
+function getZoomLinkFromNotes(event: EventInfo): string | undefined {
+    const note = event.notes;
+    const regex = /https:\/\/cybozu.zoom.us\/j\/[\w|?|=]+/g;
+    const result = note.match(regex);
+    if (result === null) {
+        return undefined;
+    }
+    return result[0];
+}
+
+async function getZoomLink(event: EventInfo): Promise<string | undefined> {
+    const url = 'https://bozuman.cybozu.com/g/api/v1/schedule/events/' + event.id + '/datastore/jp.co.cybozu.schedule.personalZoomInfo';
+    return await fetch(url, {
+        method: 'GET',
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+    }).then(
+        async resp => {
+            if (resp.ok) {
+                return resp.url;
+            } else {
+                throw new Error(`Request failed: ${resp.status}`);
+            }
+        })
+        .catch(
+            () => {return undefined;}
+        );
 }
